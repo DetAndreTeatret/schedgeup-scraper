@@ -1,10 +1,7 @@
-import dotenv from "dotenv"
-
 /**
  * @internal
  */
 export function setupConfig() {
-    dotenv.config()
     for (const environmentVariableKey in EnvironmentVariable) {
         const result = process.env[environmentVariableKey]
         if (result === undefined || result === "") {
