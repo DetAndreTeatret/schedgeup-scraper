@@ -23,6 +23,6 @@
     "typescript": "5.0.3"
   },
   "devDependencies": {
-    "eslint-config-dat": "1.0.1"
+    "eslint-config-dat": "1.0.2"
   }
 }

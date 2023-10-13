@@ -62,6 +62,7 @@ export async function getEventInfos(dateRange: DateRange) {
 async function scrapeSchedule(page: Page, dateRange?: DateRange): Promise<EventIdAndDate[]> {
     const result = await page.$$eval(eventFields, (events, dateFrom, dateTo) => {
         console.info("Found " + events.length + " events on schedule page")
+
         class EventInfo {
             id: string
             showtemplateId: string | undefined
