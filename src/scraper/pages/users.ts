@@ -1,5 +1,5 @@
-import {getSchedgeUpPage, navigateToUrl} from "../browser"
 import {Page} from "puppeteer"
+import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
 import {EnvironmentVariable, needEnvVariable} from "../../common/config.js"
 
 class SchedgeUpUser {
