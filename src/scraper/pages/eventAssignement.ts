@@ -7,6 +7,7 @@ export class Worker {
     id: string | null // null if Guest
     role: string
     who: string
+
     constructor(id: string | null, role: string, who: string) {
         this.id = id
         this.role = role
@@ -47,6 +48,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
                 id: string | null // null if Guest
                 role: string
                 who: string
+
                 constructor(id: string | null, role: string, who: string) {
                     this.id = id
                     this.role = role
@@ -60,13 +62,23 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
                 const role = element.querySelector(".skilled_role") as HTMLElement
                 const whoList = element.querySelectorAll(".userBar")
 
-                if(role != null && whoList.length > 0) {
+                if (role != null && whoList.length > 0) {
                     whoList.forEach(whoListElement => {
                         const id = whoListElement.getAttribute("data-id")
                         const who = whoListElement.querySelector(".bar_info") as HTMLElement
-                        if(who != null) {
+                        if (who != null) {
                             const name = who.firstChild?.textContent?.replaceAll("\n", "")
                             workers.push(new Worker(id, role.innerText.split(" ")[0], name == null ? "MissingName" : name.trim()))
+                        } else {
+                            // Guests
+                            const who = whoListElement.querySelector(".assignmentFields")
+                            if (who === null) throw new Error("Error trying to read user assignment entry")
+                            const whoTextElement = who.querySelector("[type=\"text\"]")
+                            if(whoTextElement === null) throw new Error("Could not find text element in Guest entry")
+                            const whoText = whoTextElement.getAttribute("value")
+                            if(whoText === null) throw new Error("Could not find text content in text element in Guest entry")
+
+                            workers.push(new Worker(id, role.innerText.split(" ")[0], whoText))
                         }
                     })
                 }
