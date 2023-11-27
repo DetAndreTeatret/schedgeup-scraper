@@ -31,8 +31,8 @@ export async function getEventInfos(dateRange: DateRange) {
         return await scrapeSchedule(page, dateRange)
     } else {
         console.log("Getting event ids for range " + dateRange.toString())
-        let fromMonth = dateRange.dateFrom.getMonth(), fromYear = dateRange.dateFrom.getFullYear(),
-            toMonth = dateRange.dateTo.getMonth(), toYear = dateRange.dateTo.getFullYear()
+        let fromMonth = dateRange.dateFrom.getMonth(), fromYear = dateRange.dateFrom.getFullYear()
+        const toMonth = dateRange.dateTo.getMonth(), toYear = dateRange.dateTo.getFullYear()
         while (fromMonth !== toMonth || fromYear !== toYear) {
             dateStrings.push(SCHEDULE_DATE_FORMAT.replace("%y", String(fromYear)).replace("%m", String(fromMonth + 1)))
 
