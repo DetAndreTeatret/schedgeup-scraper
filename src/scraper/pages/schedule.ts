@@ -33,15 +33,14 @@ export async function getEventInfos(dateRange: DateRange) {
         console.log("Getting event ids for range " + dateRange.toString())
         let fromMonth = dateRange.dateFrom.getMonth(), fromYear = dateRange.dateFrom.getFullYear()
         const toMonth = dateRange.dateTo.getMonth(), toYear = dateRange.dateTo.getFullYear()
-        while (fromMonth !== toMonth || fromYear !== toYear) {
+        do {
             dateStrings.push(SCHEDULE_DATE_FORMAT.replace("%y", String(fromYear)).replace("%m", String(fromMonth + 1)))
 
             if (fromMonth === 11 && toYear > fromYear) {
                 fromYear++
                 fromMonth = -1
             }
-            fromMonth++
-        }
+        } while (fromMonth++ !== toMonth || fromYear !== toYear)
     }
 
     const ids: EventIdAndDate[] = []
