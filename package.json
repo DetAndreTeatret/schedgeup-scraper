@@ -1,11 +1,12 @@
 {
   "name": "schedgeup-scraper",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Web scraper for SchedgeUp",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lintFix": "eslint . --ext .ts --fix",
-    "transpile": "npm run lint && tsc"
+    "transpile": "npm run lint && tsc",
+    "release": "npm install && npm run lintFix && tsc && npm publish --access public"
   },
   "keywords": [
     "schedgeup"
