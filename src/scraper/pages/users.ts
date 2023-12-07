@@ -1,18 +1,25 @@
 import {Page} from "puppeteer"
 import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
 import {EnvironmentVariable, needEnvVariable} from "../../common/config.js"
+import {AsYouType} from "libphonenumber-js"
+
+const phoneFormatter = new AsYouType()
 
 class SchedgeUpUser {
     userId: string
     displayName: string
     roles: string[]
     groups: string[]
+    phoneNumber: string | undefined
+    emailAddress: string
 
-    constructor(userId: string, displayName: string, roles: string[], groups: string[]) {
+    constructor(userId: string, displayName: string, roles: string[], groups: string[], phoneNumber: string | undefined, emailAddress: string) {
         this.userId = userId
         this.displayName = displayName
         this.roles = roles
         this.groups = groups
+        this.phoneNumber = phoneNumber
+        this.emailAddress = emailAddress
     }
 }
 
@@ -29,12 +36,16 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
             displayName: string
             roles: string[]
             groups: string[]
+            phoneNumber: string
+            emailAddress: string
 
-            constructor(userId: string, displayName: string, roles: string[], groups: string[]) {
+            constructor(userId: string, displayName: string, roles: string[], groups: string[], phoneNumber: string, emailAddress: string) {
                 this.userId = userId
                 this.displayName = displayName
                 this.roles = roles
                 this.groups = groups
+                this.phoneNumber = phoneNumber
+                this.emailAddress = emailAddress
             }
         }
 
@@ -42,7 +53,7 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
          * A user row should consist of these 8 data cell elements(<td>)("contains" implies element.innerText):
          * 0. Cell containing only the row number of the current user row
          * 1. Cell containing only the display name of the user
-         * 2. Cell containing an element that contains the telephone number of the user, if any exists
+         * 2. Cell containing an element that contains the telephone number of the user, if any exists(empty returns "")
          * 3. Cell containing an element that contains the mail address of the user
          * 4. Cell containing an element that contains a calendar icon, which has a href to the schedule for the given user
          * 5. Cell containing an element that contains a birthday cake icon, which has a href to the page of all theatre birthdays
@@ -57,8 +68,12 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
 
             // @ts-ignore
             const id = needNotNull(cells.item(4), "user td 4").firstChild.href.split("=")[1]
+            // @ts-ignore
+            const phoneNumber = needNotNull(cells.item(2), "user td 2").firstChild.innerText
+            // @ts-ignore
+            const emailAddress = needNotNull(cells.item(3), "user td 2").firstChild.innerText
 
-            return new SchedgeUpUser(id, displayName, [], []) // TODO: Roles and groups
+            return new SchedgeUpUser(id, displayName, [], [], phoneNumber, emailAddress) // TODO: Roles and groups
         }
 
         function needNotNull<T>(object: T | null, whatIsTheObject: string) {
@@ -87,7 +102,19 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
         }
 
         return JSON.stringify(users)
-    }))
+    }), (key, value) => {
+        if (key === "phoneNumber") {
+            if(value === "") return undefined
+            const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
+            if (sanitizedNumber.startsWith("+47")) {
+                // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
+                phoneFormatter.input(sanitizedNumber)
+            } else {
+                // If the number does not start with our country code, we have to believe that the user typed in the correct symbols
+                return phoneFormatter.input(value)
+            }
+        } else return value
+    })
 }
 
 

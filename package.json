@@ -1,6 +1,6 @@
 {
   "name": "schedgeup-scraper",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Web scraper for SchedgeUp",
   "scripts": {
     "lint": "eslint . --ext .ts",
@@ -15,12 +15,15 @@
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "dependencies": {
     "@tsconfig/node18": "1.0.1",
     "@types/node": "18.15.11",
     "@types/puppeteer": "7.0.4",
+    "libphonenumber-js": "1.10.51",
     "puppeteer": "19.8.3",
     "typescript": "5.0.3"
   },
