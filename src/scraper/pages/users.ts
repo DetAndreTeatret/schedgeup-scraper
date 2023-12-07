@@ -3,8 +3,6 @@ import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
 import {EnvironmentVariable, needEnvVariable} from "../../common/config.js"
 import {AsYouType} from "libphonenumber-js"
 
-const phoneFormatter = new AsYouType()
-
 class SchedgeUpUser {
     userId: string
     displayName: string
@@ -73,7 +71,7 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
             // @ts-ignore
             const emailAddress = needNotNull(cells.item(3), "user td 2").firstChild.innerText
 
-            return new SchedgeUpUser(id, displayName, [], [], phoneNumber, emailAddress) // TODO: Roles and groups
+            return new SchedgeUpUser(id, displayName, [], [], phoneNumber === "" ? "undefined" : phoneNumber, emailAddress) // TODO: Roles and groups
         }
 
         function needNotNull<T>(object: T | null, whatIsTheObject: string) {
@@ -104,14 +102,17 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
         return JSON.stringify(users)
     }), (key, value) => {
         if (key === "phoneNumber") {
-            if(value === "") return undefined
-            const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
+            if(value === "undefined") return null
+            let sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
+            if(sanitizedNumber.length === 10 && sanitizedNumber.startsWith("47")) {
+                sanitizedNumber = "+" + sanitizedNumber
+            }
             if (sanitizedNumber.startsWith("+47")) {
                 // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
-                phoneFormatter.input(sanitizedNumber)
+                return new AsYouType().input(sanitizedNumber)
             } else {
                 // If the number does not start with our country code, we have to believe that the user typed in the correct symbols
-                return phoneFormatter.input(value)
+                return new AsYouType().input(value)
             }
         } else return value
     })

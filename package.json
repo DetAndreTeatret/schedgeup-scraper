@@ -6,7 +6,8 @@
     "lint": "eslint . --ext .ts",
     "lintFix": "eslint . --ext .ts --fix",
     "transpile": "npm run lint && tsc",
-    "release": "npm install && npm run lintFix && tsc && npm publish --access public"
+    "release": "npm install && npm run lintFix && tsc && npm publish --access public",
+    "test": "tsc && mocha --exit"
   },
   "keywords": [
     "schedgeup"
@@ -28,6 +29,8 @@
     "typescript": "5.0.3"
   },
   "devDependencies": {
-    "eslint-config-dat": "1.0.2"
+    "eslint-config-dat": "1.0.2",
+    "mocha": "10.2.0",
+    "dotenv": "16.3.1"
   }
 }
