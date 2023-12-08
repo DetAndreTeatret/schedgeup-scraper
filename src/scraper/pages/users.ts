@@ -8,10 +8,10 @@ class SchedgeUpUser {
     displayName: string
     roles: string[]
     groups: string[]
-    phoneNumber: string | undefined
+    phoneNumber: string | null
     emailAddress: string
 
-    constructor(userId: string, displayName: string, roles: string[], groups: string[], phoneNumber: string | undefined, emailAddress: string) {
+    constructor(userId: string, displayName: string, roles: string[], groups: string[], phoneNumber: string | null, emailAddress: string) {
         this.userId = userId
         this.displayName = displayName
         this.roles = roles
@@ -21,11 +21,15 @@ class SchedgeUpUser {
     }
 }
 
-export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
+/**
+ * Scrape users from the "All Users" page, alternatively pass an array of user ids to include to discard any unnecessary users
+ * @param users user ids to include in the result, will ignore all users not included in this array if present
+ */
+export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
     const page = getSchedgeUpPage()
     await navigateToUsers(page)
 
-    return JSON.parse(await page.$eval(".infoTable", (result) => {
+    return JSON.parse(await page.$eval(".infoTable", (result, userIds) => {
 
         const users: SchedgeUpUser[] = []
 
@@ -57,7 +61,7 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
          * 5. Cell containing an element that contains a birthday cake icon, which has a href to the page of all theatre birthdays
          * 6. Cell containing an element that contains a camera icon, which has a href to the affiliations page of the user
          * 7. Cell containing an element that contains a pencil icon, which has a href to the affiliations page of the user
-         * @param element
+         * @param element user element as described above
          */
         function parseUser(element: Element) {
             const cells = element.children
@@ -66,6 +70,7 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
 
             // @ts-ignore
             const id = needNotNull(cells.item(4), "user td 4").firstChild.href.split("=")[1]
+            if(userIds !== undefined && !userIds.includes(id)) return null
             // @ts-ignore
             const phoneNumber = needNotNull(cells.item(2), "user td 2").firstChild.innerText
             // @ts-ignore
@@ -95,13 +100,14 @@ export async function scrapeUsers(): Promise<SchedgeUpUser[]> {
             }
 
             const user = parseUser(tableItem)
+            if (!user) continue
             console.info("Found user " + user.displayName + "(" + user.userId + ")")
             users.push(user)
         }
 
         return JSON.stringify(users)
-    }), (key, value) => {
-        if (key === "phoneNumber") {
+    }, users), (key, value) => {
+        if (key === "phoneNumber") { // TODO internationalize
             if(value === "undefined") return null
             let sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
             if(sanitizedNumber.length === 10 && sanitizedNumber.startsWith("47")) {

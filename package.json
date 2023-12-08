@@ -1,6 +1,6 @@
 {
   "name": "schedgeup-scraper",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Web scraper for SchedgeUp",
   "scripts": {
     "lint": "eslint . --ext .ts",
