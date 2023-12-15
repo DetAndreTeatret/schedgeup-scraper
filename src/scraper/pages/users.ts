@@ -107,7 +107,7 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
 
         return JSON.stringify(users)
     }, users), (key, value) => {
-        if (key === "phoneNumber") { // TODO internationalize
+        if (key === "phoneNumber") {
             if(value === "undefined") return null
             let sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
             if(sanitizedNumber.length === 10 && sanitizedNumber.startsWith("47")) {
