@@ -59,7 +59,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const workers: Worker[] = []
 
             events.forEach((element) => {
-                const role = element.querySelector(".skilled_role") as HTMLElement
+                const role = element.getElementsByTagName("LABEL")[0] as HTMLElement
                 const whoList = element.querySelectorAll(".userBar")
 
                 if (role != null && whoList.length > 0) {
