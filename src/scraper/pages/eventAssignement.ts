@@ -18,16 +18,20 @@ export class Worker {
 export class Event {
     id: string
     title: string
+    subtitle: string | undefined
     workers: Worker[]
     showTemplateId: string | undefined
-    date: Date
+    eventStartTime: Date
+    eventEndTime: Date
 
-    constructor(id: string, title: string, workers: Worker[], showTemplateId: string | undefined, date: Date) {
+    constructor(id: string, title: string, subtitle: string | undefined, workers: Worker[], showTemplateId: string | undefined, eventStartTime: Date, eventEndTime: Date) {
         this.id = id
         this.title = title
+        this.subtitle = subtitle
         this.workers = workers
         this.showTemplateId = showTemplateId
-        this.date = date
+        this.eventStartTime = eventStartTime
+        this.eventEndTime = eventEndTime
     }
 }
 
@@ -41,7 +45,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
         await navigateToUrl(page, EVENT_ASSIGN_FORMAT.replace("%s", id))
 
         // Fetch the workers currently assigned to this show
-        const workers = await page.$$eval(usersSelector, (events) => {
+        const workers = JSON.parse(await page.$$eval(usersSelector, (events) => {
 
             // Duplicate since browser can not see our class
             class Worker {
@@ -85,16 +89,56 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             })
 
             return JSON.stringify(workers)
-        })
+        }))
+
+        class MoreEventInfo {
+            title: string
+            subtitle: string | undefined
+            eventStartTime: Date
+            eventEndTime: Date
+
+            constructor(title: string, subtitle: string | null | undefined, eventStartTime: Date, eventEndTime: Date) {
+                this.title = title
+                if (subtitle === null) {
+                    this.subtitle = undefined
+                }  else {
+                    this.subtitle = subtitle
+                }
+                this.eventStartTime = eventStartTime
+                this.eventEndTime = eventEndTime
+            }
+        }
 
         // Fetch the name of this show
-        const title: string = await page.$eval("#header", event => {
-            // Include spaces in split so there is no space at the end of title text
-            const subtitle = event.querySelector(".subtitle") as HTMLElement
-            return subtitle == null ? "null" : subtitle.innerText.split(" • ")[0]
-        })
+        const moreInfo: MoreEventInfo = JSON.parse(await page.$eval(".assign > #formHeader", (element, eventDate) => {
+            const nodes = element.querySelectorAll(".subtitle")
 
-        events.push(new Event(id, title, JSON.parse(workers), eventInfos[i].showtemplateId, eventInfos[i].date))
+            const title = element.firstChild?.textContent
+            let subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
+            const eventLengthText = nodes.item(1).textContent?.split(" • ")[1]
+
+            if(title === null || title === undefined || eventLengthText === undefined) {
+                throw new Error("Error fetching title or eventLength from " + (title === null ? "some event" : title))
+            }
+
+            const eventLengthPieces = eventLengthText.split(new RegExp("[:|-]"))
+            const fromHours = Number(eventLengthPieces[0])
+            const fromMinutes = Number(eventLengthPieces[1])
+            let toHours = Number(eventLengthPieces[2])
+            const toMinutes = Number(eventLengthPieces[3])
+
+            const eventStartTime = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), fromHours, fromMinutes)
+            const eventEndTime = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), toHours, toMinutes)
+
+            return JSON.stringify({
+                title: title.trim().replace("\n", ""),
+                subtitle: subtitle,
+                eventStartTime: eventStartTime,
+                eventEndTime: eventEndTime
+            })
+        }, eventInfos[i].date))
+
+        events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, moreInfo.eventStartTime, moreInfo.eventEndTime))
     }
 
     return events
