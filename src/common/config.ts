@@ -25,6 +25,15 @@ export function needEnvVariable(key: EnvironmentVariable) {
     return result
 }
 
+export function getEnvVariable(key: string, def: string) {
+    const result = process.env[key]
+    if(result === undefined) {
+        return def
+    }
+
+    return result
+}
+
 /**
  * @internal
  */

@@ -6,3 +6,6 @@ Expects the following env variables to be present in `process.env`:
 - `SCHEDGEUP_PASS` : password for user used to log into SchedgeUp
 - `THEATRE_ID` : To find Theatre ID log into SchedgeUp and navigate to either Theatre Schedule or Calendar,
   ID will be in the URL (e.g `https://www.schedgeup.com/theatres/====>59<====/events`)
+
+Optionally the env variable `NATIVE_COUNTRY_CODE` could be set for proper parsing of badly 
+formatted phone numbers from the users page. (defaults to +47)
