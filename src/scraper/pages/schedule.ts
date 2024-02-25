@@ -23,12 +23,17 @@ export class EventIdAndDate {
     }
 }
 
-export async function getEventInfos(dateRange: DateRange) {
+/**
+ * Get initial event info for all events matching the given date range
+ * @param dateRange The period of time which to look for events
+ * @param includeUnpostedEvents if unposted events be included in the results
+ */
+export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents: boolean) {
     const page = getSchedgeUpPage()
     const dateStrings: string[] = []
     if (dateRange.isSingleMonth()) {
         await navigateToSchedule(page)
-        return await scrapeSchedule(page, dateRange)
+        return await scrapeSchedule(page, includeUnpostedEvents, dateRange)
     } else {
         console.log("Getting event ids for range " + dateRange.toString())
         let fromMonth = dateRange.dateFrom.getMonth(), fromYear = dateRange.dateFrom.getFullYear()
@@ -46,7 +51,7 @@ export async function getEventInfos(dateRange: DateRange) {
     const ids: EventIdAndDate[] = []
     for await (const date of dateStrings) {
         await navigateToSchedule(page, date)
-        for await (const id of await scrapeSchedule(page, dateRange)) {
+        for await (const id of await scrapeSchedule(page, includeUnpostedEvents, dateRange)) {
             ids.push(id)
         }
     }
@@ -54,12 +59,8 @@ export async function getEventInfos(dateRange: DateRange) {
     return ids
 }
 
-/**
- * @param page
- * @param dateRange
- */
-async function scrapeSchedule(page: Page, dateRange?: DateRange): Promise<EventIdAndDate[]> {
-    const result = await page.$$eval(eventFields, (events, dateFrom, dateTo) => {
+async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRange?: DateRange): Promise<EventIdAndDate[]> {
+    const result = await page.$$eval(eventFields, (events, dateFrom, dateTo, includeUnpostedEvents) => {
         console.info("Found " + events.length + " events on schedule page")
 
         class EventInfo {
@@ -78,6 +79,10 @@ async function scrapeSchedule(page: Page, dateRange?: DateRange): Promise<EventI
         const readEvents: EventInfo[] = []
 
         events.forEach(element => {
+            if(!includeUnpostedEvents && !element.classList.contains("posted")) {
+                return
+            }
+
             // @ts-ignore
             const dateString = element.innerText.split(" ")[1].split("/")
             const date = new Date(20 + dateString[2], dateString[1] - 1, dateString[0])
@@ -106,7 +111,7 @@ async function scrapeSchedule(page: Page, dateRange?: DateRange): Promise<EventI
             }
         })
         return JSON.stringify(readEvents)
-    }, dateRange?.dateFrom, dateRange?.dateTo)
+    }, dateRange?.dateFrom, dateRange?.dateTo, includeUnpostedEvents)
 
     return JSON.parse(result, (key, value) => {
         if (key === "date") {
