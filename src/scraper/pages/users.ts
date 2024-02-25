@@ -109,12 +109,16 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
     }, users), (key, value) => {
         if (key === "phoneNumber") {
             if(value === "undefined") return null
-            const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
-            if (isValidPhoneNumber("+" + sanitizedNumber, getEnvVariable("NATIVE_COUNTRY_CODE", "NO") as CountryCode)) {
-                // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
+            const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "").replace(" ", "").trim()
+            const countryCode = getEnvVariable("NATIVE_COUNTRY_CODE", "NO") as CountryCode
+            if (isValidPhoneNumber(sanitizedNumber, countryCode)) {
+                // If there was found any weird symbols on numbers matching our country, its probably a mistake
                 return new AsYouType().input(sanitizedNumber)
+            } else if(isValidPhoneNumber("+" + sanitizedNumber, countryCode)) {
+                // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
+                return new AsYouType().input("+" + sanitizedNumber)
             } else {
-                // If the number does not start with our country code, we have to believe that the user typed in the correct symbols
+                // If the number is not a valid number for our country, we have to believe that the user typed in the correct symbols
                 return new AsYouType().input(value)
             }
         } else return value

@@ -127,8 +127,9 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const toHours = Number(eventLengthPieces[2])
             const toMinutes = Number(eventLengthPieces[3])
 
-            const eventStartTime = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), fromHours, fromMinutes)
-            const eventEndTime = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), toHours, toMinutes)
+            const eventDateParsed = new Date(eventDate)
+            const eventStartTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), fromHours, fromMinutes)
+            const eventEndTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), toHours, toMinutes)
 
             return JSON.stringify({
                 title: title.trim().replace("\n", ""),
@@ -136,7 +137,11 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
                 eventStartTime: eventStartTime,
                 eventEndTime: eventEndTime
             })
-        }, eventInfos[i].date))
+        }, eventInfos[i].date), (key, value) => {
+                if (key === "eventStartTime" || key === "eventEndTime") {
+                    return new Date(value)
+                } else return value
+            })
 
         events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, moreInfo.eventStartTime, moreInfo.eventEndTime))
     }
