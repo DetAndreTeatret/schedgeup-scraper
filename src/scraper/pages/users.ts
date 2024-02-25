@@ -1,7 +1,7 @@
 import {Page} from "puppeteer"
 import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
 import {EnvironmentVariable, getEnvVariable, needEnvVariable} from "../../common/config.js"
-import {AsYouType} from "libphonenumber-js"
+import {AsYouType, CountryCode, isValidPhoneNumber} from "libphonenumber-js"
 
 class SchedgeUpUser {
     userId: string
@@ -109,11 +109,8 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
     }, users), (key, value) => {
         if (key === "phoneNumber") {
             if(value === "undefined") return null
-            let sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
-            if(sanitizedNumber.length === 10 && sanitizedNumber.startsWith("47")) {
-                sanitizedNumber = "+" + sanitizedNumber
-            }
-            if (sanitizedNumber.startsWith(getEnvVariable("NATIVE_COUNTRY_CODE", "+47"))) {
+            const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "")
+            if (isValidPhoneNumber("+" + sanitizedNumber, getEnvVariable("NATIVE_COUNTRY_CODE", "NO") as CountryCode)) {
                 // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
                 return new AsYouType().input(sanitizedNumber)
             } else {

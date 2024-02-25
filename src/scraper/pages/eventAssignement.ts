@@ -114,7 +114,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const nodes = element.querySelectorAll(".subtitle")
 
             const title = element.firstChild?.textContent
-            let subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
+            const subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
             const eventLengthText = nodes.item(1).textContent?.split(" • ")[1]
 
             if(title === null || title === undefined || eventLengthText === undefined) {
@@ -124,7 +124,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const eventLengthPieces = eventLengthText.split(new RegExp("[:|-]"))
             const fromHours = Number(eventLengthPieces[0])
             const fromMinutes = Number(eventLengthPieces[1])
-            let toHours = Number(eventLengthPieces[2])
+            const toHours = Number(eventLengthPieces[2])
             const toMinutes = Number(eventLengthPieces[3])
 
             const eventStartTime = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), fromHours, fromMinutes)

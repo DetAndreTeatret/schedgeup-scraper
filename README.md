@@ -8,4 +8,4 @@ Expects the following env variables to be present in `process.env`:
   ID will be in the URL (e.g `https://www.schedgeup.com/theatres/====>59<====/events`)
 
 Optionally the env variable `NATIVE_COUNTRY_CODE` could be set for proper parsing of badly 
-formatted phone numbers from the users page. (defaults to +47)
+formatted phone numbers from the users page. (defaults to "NO" for Norway)
