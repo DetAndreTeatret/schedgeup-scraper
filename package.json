@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "eslint-config-dat": "1.0.2",
-    "mocha": "10.2.0",
+    "mocha": "10.3.0",
     "dotenv": "16.4.5"
   }
 }
