@@ -25,7 +25,7 @@
     "@types/node": "18.19.18",
     "libphonenumber-js": "1.10.57",
     "puppeteer": "19.8.3",
-    "typescript": "5.0.3"
+    "typescript": "5.3.3"
   },
   "devDependencies": {
     "eslint-config-dat": "1.0.2",
