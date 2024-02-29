@@ -78,9 +78,9 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
                             const who = whoListElement.querySelector(".assignmentFields")
                             if (who === null) throw new Error("Error trying to read user assignment entry")
                             const whoTextElement = who.querySelector("[type=\"text\"]")
-                            if(whoTextElement === null) throw new Error("Could not find text element in Guest entry")
+                            if (whoTextElement === null) throw new Error("Could not find text element in Guest entry")
                             const whoText = whoTextElement.getAttribute("value")
-                            if(whoText === null) throw new Error("Could not find text content in text element in Guest entry")
+                            if (whoText === null) throw new Error("Could not find text content in text element in Guest entry")
 
                             workers.push(new Worker(id, role.innerText.split(" ")[0], whoText))
                         }
@@ -117,7 +117,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
             const eventLengthText = nodes.item(1).textContent?.split(" • ")[1]
 
-            if(title === null || title === undefined || eventLengthText === undefined) {
+            if (title === null || title === undefined || eventLengthText === undefined) {
                 throw new Error("Error fetching title or eventLength from " + (title === null ? "some event" : title))
             }
 

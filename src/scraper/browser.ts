@@ -50,7 +50,7 @@ export async function createPage() {
         })
 
         page.setDefaultNavigationTimeout(1000 * 60)
-    if(schedgeUpPage === undefined) {
+    if (schedgeUpPage === undefined) {
         schedgeUpPage = page
         // TODO log
         await loginSchedgeUp(schedgeUpPage)
@@ -62,7 +62,7 @@ export async function createPage() {
  * @internal
  */
 export function getSchedgeUpPage() {
-    if(schedgeUpPage === undefined) {
+    if (schedgeUpPage === undefined) {
         throw new Error("SchedgeUp page is not yet initialized...")
     }
 
@@ -79,7 +79,7 @@ export async function navigateToUrl(page: Page, url: string, tryCount?: number) 
     } catch (e) {
         console.log("Error while trying to navigate to " + url + ": " + e)
         const currentTry = tryCount === undefined ? 0 : tryCount
-        if(currentTry > 3) {
+        if (currentTry > 3) {
             throw new Error("Failed to navigate to url " + url + " after 3 retries :(")
         }
         console.log("Retrying...(" + tryCount + "/3)")

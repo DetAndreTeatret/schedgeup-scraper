@@ -24,7 +24,7 @@ export async function loginSchedgeUp(page: Page) {
     await page.click(loginBtn)
     console.log("Wait for navigation after login...")
     await page.waitForNavigation()
-    if(page.url().includes("login")) {
+    if (page.url().includes("login")) {
         throw new Error("Login failed!! :(")
     }
     console.log("Login successful!")

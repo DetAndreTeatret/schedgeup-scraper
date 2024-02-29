@@ -70,7 +70,7 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
 
             // @ts-ignore
             const id = needNotNull(cells.item(4), "user td 4").firstChild.href.split("=")[1]
-            if(userIds !== undefined && !userIds.includes(id)) return null
+            if (userIds !== undefined && !userIds.includes(id)) return null
             // @ts-ignore
             const phoneNumber = needNotNull(cells.item(2), "user td 2").firstChild.innerText
             // @ts-ignore
@@ -108,13 +108,13 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
         return JSON.stringify(users)
     }, users), (key, value) => {
         if (key === "phoneNumber") {
-            if(value === "undefined") return null
+            if (value === "undefined") return null
             const sanitizedNumber = value.replace(new RegExp("[^+0-9]", "g"), "").replace(" ", "").trim()
             const countryCode = getEnvVariable("NATIVE_COUNTRY_CODE", "NO") as CountryCode
             if (isValidPhoneNumber(sanitizedNumber, countryCode)) {
                 // If there was found any weird symbols on numbers matching our country, its probably a mistake
                 return new AsYouType().input(sanitizedNumber)
-            } else if(isValidPhoneNumber("+" + sanitizedNumber, countryCode)) {
+            } else if (isValidPhoneNumber("+" + sanitizedNumber, countryCode)) {
                 // If there was found any weird symbols on a number starting with our country code, it's probably a mistake
                 return new AsYouType().input("+" + sanitizedNumber)
             } else {

@@ -79,7 +79,7 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
         const readEvents: EventInfo[] = []
 
         events.forEach(element => {
-            if(!includeUnpostedEvents && !element.classList.contains("posted")) {
+            if (!includeUnpostedEvents && !element.classList.contains("posted")) {
                 return
             }
 

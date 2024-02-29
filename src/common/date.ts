@@ -9,7 +9,7 @@ export class DateRange {
         this.dateFrom = new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate())
         this.dateTo = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate())
 
-        if(this.dateTo < this.dateFrom) {
+        if (this.dateTo < this.dateFrom) {
             throw new Error("Invalid date range: " + dateFrom.toDateString() + " to " + dateTo.toDateString())
         }
     }
@@ -71,9 +71,9 @@ export function afterDays(days: number, from?: Date) {
  */
 function incrementDate(year: number, month: number, days: number, daysToIncrement: number) {
     for (let i = 0; i < daysToIncrement; i++) {
-        if(getMaxDays(month, year) === days) {
+        if (getMaxDays(month, year) === days) {
             days = 1
-            if(month === 12) {
+            if (month === 12) {
                 // Happy new year!
                 month = 1
                 year++
@@ -92,7 +92,7 @@ function incrementDate(year: number, month: number, days: number, daysToIncremen
  * EXPECTS MONTHS NON-ZERO INDEXED
  */
 function getMaxDays(month: number, year: number) {
-    if(month >= 13 || month <= 0) throw new Error("Month with number " + month + " does not exist")
+    if (month >= 13 || month <= 0) throw new Error("Month with number " + month + " does not exist")
     switch (month){
         case 1:
         case 3:
@@ -106,9 +106,9 @@ function getMaxDays(month: number, year: number) {
         case 9:
         case 11: return 30
         case 2: {
-            if(year % 4 === 0) {
-                if(year % 100 === 0) {
-                    if(year % 400 === 0) {
+            if (year % 4 === 0) {
+                if (year % 100 === 0) {
+                    if (year % 400 === 0) {
                         return 29
                     } else return 28
                 } else return 29
