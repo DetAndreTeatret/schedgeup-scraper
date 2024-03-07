@@ -10,16 +10,18 @@ const SCHEDULE_DATE_FORMAT = "?date=%y-%m-01"
 // css selectors
 const eventFields = "[class^='eventBlurb']"
 
-export class EventIdAndDate {
+export class ScheduleEventInfo {
     id: string
     showtemplateId: string | undefined
-    date: Date
+    eventCallTime: Date
+    eventStartTime: Date
 
 
-    constructor(id: string, showtemplateId: string | undefined, date: Date) {
+    constructor(id: string, showtemplateId: string | undefined, eventCallTime: Date, eventStartTime: Date) {
         this.id = id
         this.showtemplateId = showtemplateId
-        this.date = date
+        this.eventCallTime = eventCallTime
+        this.eventStartTime = eventStartTime
     }
 }
 
@@ -48,37 +50,25 @@ export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents:
         } while (fromMonth++ !== toMonth || fromYear !== toYear)
     }
 
-    const ids: EventIdAndDate[] = []
+    const infos: ScheduleEventInfo[] = []
     for await (const date of dateStrings) {
         await navigateToSchedule(page, date)
-        for await (const id of await scrapeSchedule(page, includeUnpostedEvents, dateRange)) {
-            ids.push(id)
+        for await (const info of await scrapeSchedule(page, includeUnpostedEvents, dateRange)) {
+            infos.push(info)
         }
     }
 
-    return ids
+    return infos
 }
 
-async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRange?: DateRange): Promise<EventIdAndDate[]> {
-    const result = await page.$$eval(eventFields, (events, dateFrom, dateTo, includeUnpostedEvents) => {
-        console.info("Found " + events.length + " events on schedule page")
+async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRange?: DateRange): Promise<ScheduleEventInfo[]> {
+    const eventElements = await page.$$(eventFields)
 
-        class EventInfo {
-            id: string
-            showtemplateId: string | undefined
-            date: Date
+    const readEvents: ScheduleEventInfo[] = []
 
+    for await (const eventElement of eventElements) {
 
-            constructor(id: string, showtemplateId: string | undefined, date: Date) {
-                this.id = id
-                this.showtemplateId = showtemplateId
-                this.date = date
-            }
-        }
-
-        const readEvents: EventInfo[] = []
-
-        events.forEach(element => {
+        const result = await eventElement.evaluate((element, dateFrom, dateTo, includeUnpostedEvents) => {
             if (!includeUnpostedEvents && !element.classList.contains("posted")) {
                 return
             }
@@ -94,30 +84,69 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
                 }
             }
 
+            const href = element.getAttribute("href")
+            if (href == null) throw new Error("Could not find href on event element")
+            const id = href.match("\\d+")
+            if (id == null || id.length > 1) {
+                throw new Error("Regex matched wrongly for event href")
+            } else {
+                console.info("Found new event " + id[0])
+            }
+
             let showTemplateId
             element.classList.forEach(className => {
                 if (className.startsWith("event_template_")) {
                     showTemplateId = className.split("event_template_")[1]
                 }
             })
-            // @ts-ignore
-            const href: string = element.href
-            const id = href.match("\\d+")
-            if (id == null || id.length > 1) {
-                throw new Error("Regex matched wrongly for event href")
-            } else {
-                console.info("Found new event " + id[0])
-                readEvents.push(new EventInfo(id[0], showTemplateId, date))
-            }
-        })
-        return JSON.stringify(readEvents)
-    }, dateRange?.dateFrom, dateRange?.dateTo, includeUnpostedEvents)
 
-    return JSON.parse(result, (key, value) => {
-        if (key === "date") {
-            return new Date(value)
-        } else return value
-    })
+
+            return JSON.stringify({id: id[0], tid: showTemplateId, date: date})
+        }, dateRange?.dateFrom, dateRange?.dateTo, includeUnpostedEvents)
+
+        if (result === undefined) continue
+        const parsedInfo = JSON.parse(result, (key, value) => {
+            if (key === "date") return new Date(value)
+            else return value
+        })
+
+        // Spawn cool eventWindow
+        await eventElement.click()
+        await page.waitForSelector("#eventWindow>#eventInfo")
+
+        const showTimes = await page.$eval("#eventWindow", (element, date) => {
+            const callAndShowTime = element.querySelectorAll(".subtitle").item(1).innerHTML
+            const callIndex = 6
+            const callTime = callAndShowTime.substring(callIndex, callIndex + 5)
+
+            // It's showtime
+            const showTimeIndex = callAndShowTime.indexOf("Show: ")
+            const showTime = callAndShowTime.substring(showTimeIndex + 6).trim()
+
+            const splitTime = [callTime, showTime].map(t => t.split(":")).flat().map(s => Number(s))
+            const callTimeDate = new Date(date)
+            const showStartDate = new Date(date)
+            // Use this as call date, save 1 object 😎
+            callTimeDate.setHours(splitTime[0])
+            callTimeDate.setMinutes(splitTime[1])
+
+            showStartDate.setHours(splitTime[2])
+            showStartDate.setMinutes(splitTime[3])
+
+            return JSON.stringify({callTime: callTimeDate, showStart: showStartDate})
+        }, parsedInfo.date)
+
+
+        const parsedShowTimes = JSON.parse(showTimes, (key, value) => {
+            if (key === "callTime" || key === "showStart"){
+                return new Date(value)
+            } else return value
+        })
+
+        readEvents.push(new ScheduleEventInfo(parsedInfo.id, parsedInfo.tid, parsedShowTimes.callTime, parsedShowTimes.showStart))
+    }
+
+    return readEvents
 }
 
 async function navigateToSchedule(page: Page, dateString?: string) {

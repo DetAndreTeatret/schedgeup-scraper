@@ -1,5 +1,5 @@
 import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
-import {EventIdAndDate} from "./schedule.js"
+import {ScheduleEventInfo} from "./schedule.js"
 
 const EVENT_ASSIGN_FORMAT = "https://www.schedgeup.com/assignments/%s/edit"
 
@@ -35,7 +35,7 @@ export class Event {
     }
 }
 
-export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
+export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
     const page = getSchedgeUpPage()
     const events: Event[] = []
     for (let i = 0; i < eventInfos.length; i++) {
@@ -127,7 +127,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
             const toHours = Number(eventLengthPieces[2])
             const toMinutes = Number(eventLengthPieces[3])
 
-            const eventDateParsed = new Date(eventDate)
+            const eventDateParsed = new Date(eventDate) // TODO look for date on page? So id is the only thing needed for fetch
             const eventStartTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), fromHours, fromMinutes)
             const eventEndTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), toHours, toMinutes)
 
@@ -137,7 +137,7 @@ export async function scrapeEvents(eventInfos: EventIdAndDate[]) {
                 eventStartTime: eventStartTime,
                 eventEndTime: eventEndTime
             })
-        }, eventInfos[i].date), (key, value) => {
+        }, eventInfos[i].eventStartTime), (key, value) => {
                 if (key === "eventStartTime" || key === "eventEndTime") {
                     return new Date(value)
                 } else return value
