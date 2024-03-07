@@ -126,7 +126,6 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
             const splitTime = [callTime, showTime].map(t => t.split(":")).flat().map(s => Number(s))
             const callTimeDate = new Date(date)
             const showStartDate = new Date(date)
-            // Use this as call date, save 1 object 😎
             callTimeDate.setHours(splitTime[0])
             callTimeDate.setMinutes(splitTime[1])
 
