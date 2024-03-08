@@ -9,7 +9,7 @@ export async function setupScraper() {
     console.log("Finished setup for schedgeup-scraper!")
 }
 
-export {EventIdAndDate, getEventInfos} from "./scraper/pages/schedule.js"
+export {ScheduleEventInfo, getEventInfos} from "./scraper/pages/schedule.js"
 export {Worker, Event, scrapeEvents} from "./scraper/pages/eventAssignement.js"
 export {scrapeUsers} from "./scraper/pages/users.js"
 export {DateRange} from "./common/date.js"
