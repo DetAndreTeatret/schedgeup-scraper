@@ -62,20 +62,22 @@ export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents:
 }
 
 async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRange?: DateRange): Promise<ScheduleEventInfo[]> {
-    const eventElements = await page.$$(eventFields)
-
     const readEvents: ScheduleEventInfo[] = []
 
+    const eventElements = await page.$$(eventFields)
     for await (const eventElement of eventElements) {
-
         const result = await eventElement.evaluate((element, dateFrom, dateTo, includeUnpostedEvents) => {
             if (!includeUnpostedEvents && !element.classList.contains("posted")) {
                 return
             }
 
-            // @ts-ignore
-            const dateString = element.innerText.split(" ")[1].split("/")
-            const date = new Date(20 + dateString[2], dateString[1] - 1, dateString[0])
+            // Be prepared for everything
+            const now = new Date()
+            const milleniumOffset = now.getFullYear() - (now.getFullYear() % 1000)
+
+            const dateString = (element as HTMLElement).innerText.split(" ")[1].split("/").map(s => Number(s))
+            const date = new Date(milleniumOffset + dateString[2], dateString[1] - 1, dateString[0])
+            console.info(dateFrom + " - " + dateTo + " - " + date.toDateString())
             if (dateFrom && dateTo) {
                 const dateFromParsed = new Date(dateFrom)
                 const dateToParsed = new Date(dateTo)
@@ -101,7 +103,7 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
             })
 
 
-            return JSON.stringify({id: id[0], tid: showTemplateId, date: date})
+            return JSON.stringify({id: id[0], showTemplateId: showTemplateId, date: date})
         }, dateRange?.dateFrom, dateRange?.dateTo, includeUnpostedEvents)
 
         if (result === undefined) continue
@@ -115,7 +117,7 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
         await page.waitForSelector("#eventWindow>#eventInfo")
 
         const showTimes = await page.$eval("#eventWindow", (element, date) => {
-            const callAndShowTime = element.querySelectorAll(".subtitle").item(1).innerHTML
+            const callAndShowTime = (element.querySelectorAll(".subtitle").item(1) as HTMLElement).innerText
             const callIndex = 6
             const callTime = callAndShowTime.substring(callIndex, callIndex + 5)
 
@@ -142,7 +144,7 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
             } else return value
         })
 
-        readEvents.push(new ScheduleEventInfo(parsedInfo.id, parsedInfo.tid, parsedShowTimes.callTime, parsedShowTimes.showStart))
+        readEvents.push(new ScheduleEventInfo(parsedInfo.id, parsedInfo.showTemplateId, parsedShowTimes.callTime, parsedShowTimes.showStart))
     }
 
     return readEvents
