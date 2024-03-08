@@ -26,10 +26,11 @@ class SchedgeUpUser {
  * @param users user ids to include in the result, will ignore all users not included in this array if present
  */
 export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
-    const page = getSchedgeUpPage()
+    const pageAndReleaser = await getSchedgeUpPage()
+    const page = pageAndReleaser.page
     await navigateToUsers(page)
 
-    return JSON.parse(await page.$eval(".infoTable", (result, userIds) => {
+    const usersResult = JSON.parse(await page.$eval(".infoTable", (result, userIds) => {
 
         const users: SchedgeUpUser[] = []
 
@@ -123,6 +124,8 @@ export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
             }
         } else return value
     })
+    pageAndReleaser.release()
+    return usersResult
 }
 
 

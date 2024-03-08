@@ -36,7 +36,8 @@ export class Event {
 }
 
 export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
-    const page = getSchedgeUpPage()
+    const pageAndReleaser = await getSchedgeUpPage()
+    const page = pageAndReleaser.page
     const events: Event[] = []
     for (let i = 0; i < eventInfos.length; i++) {
         const id = eventInfos[i].id
@@ -146,5 +147,6 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
         events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, moreInfo.eventStartTime, moreInfo.eventEndTime))
     }
 
+    pageAndReleaser.release()
     return events
 }

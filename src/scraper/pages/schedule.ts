@@ -31,11 +31,14 @@ export class ScheduleEventInfo {
  * @param includeUnpostedEvents if unposted events be included in the results
  */
 export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents: boolean) {
-    const page = getSchedgeUpPage()
+    const pageAndReleaser = await getSchedgeUpPage()
+    const page = pageAndReleaser.page
     const dateStrings: string[] = []
     if (dateRange.isSingleMonth()) {
         await navigateToSchedule(page)
-        return await scrapeSchedule(page, includeUnpostedEvents, dateRange)
+        const scheduleEventInfos = await scrapeSchedule(page, includeUnpostedEvents, dateRange)
+        pageAndReleaser.release()
+        return scheduleEventInfos
     } else {
         console.log("Getting event ids for range " + dateRange.toString())
         let fromMonth = dateRange.dateFrom.getMonth(), fromYear = dateRange.dateFrom.getFullYear()
@@ -58,6 +61,7 @@ export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents:
         }
     }
 
+    pageAndReleaser.release()
     return infos
 }
 

@@ -1,5 +1,6 @@
 import puppeteer, {Browser, Page} from "puppeteer"
 import {loginSchedgeUp} from "./pages/login.js"
+import {Mutex, MutexInterface, Semaphore} from "async-mutex";
 
 let schedgeUpPage: Page
 let browser: Browser
@@ -52,21 +53,32 @@ export async function createPage() {
         page.setDefaultNavigationTimeout(1000 * 60)
     if (schedgeUpPage === undefined) {
         schedgeUpPage = page
-        // TODO log
         await loginSchedgeUp(schedgeUpPage)
     }
     return page
 }
 
+const mutex = new Mutex()
+class PageAndReleaser {
+    page: Page
+    release: MutexInterface.Releaser
+
+
+    constructor(page: Page, release: MutexInterface.Releaser) {
+        this.page = page;
+        this.release = release;
+    }
+}
 /**
  * @internal
  */
-export function getSchedgeUpPage() {
+export async function getSchedgeUpPage() {
     if (schedgeUpPage === undefined) {
         throw new Error("SchedgeUp page is not yet initialized...")
     }
 
-    return schedgeUpPage // TODO some lock, for concurrent requests
+    const releaser = await mutex.acquire()
+    return new PageAndReleaser(schedgeUpPage, releaser)
 }
 
 /**
