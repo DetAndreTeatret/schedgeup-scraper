@@ -1,6 +1,6 @@
 import puppeteer, {Browser, Page} from "puppeteer"
 import {loginSchedgeUp} from "./pages/login.js"
-import {Mutex, MutexInterface, Semaphore} from "async-mutex";
+import {Mutex, MutexInterface} from "async-mutex"
 
 let schedgeUpPage: Page
 let browser: Browser
@@ -59,14 +59,15 @@ export async function createPage() {
 }
 
 const mutex = new Mutex()
+
 class PageAndReleaser {
     page: Page
     release: MutexInterface.Releaser
 
 
     constructor(page: Page, release: MutexInterface.Releaser) {
-        this.page = page;
-        this.release = release;
+        this.page = page
+        this.release = release
     }
 }
 /**
