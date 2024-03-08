@@ -81,7 +81,6 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
 
             const dateString = (element as HTMLElement).innerText.split(" ")[1].split("/").map(s => Number(s))
             const date = new Date(milleniumOffset + dateString[2], dateString[1] - 1, dateString[0])
-            console.info(dateFrom + " - " + dateTo + " - " + date.toDateString())
             if (dateFrom && dateTo) {
                 const dateFromParsed = new Date(dateFrom)
                 const dateToParsed = new Date(dateTo)

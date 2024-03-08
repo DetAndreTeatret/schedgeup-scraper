@@ -21,15 +21,17 @@ export class Event {
     subtitle: string | undefined
     workers: Worker[]
     showTemplateId: string | undefined
+    eventCallTime: Date
     eventStartTime: Date
     eventEndTime: Date
 
-    constructor(id: string, title: string, subtitle: string | undefined, workers: Worker[], showTemplateId: string | undefined, eventStartTime: Date, eventEndTime: Date) {
+    constructor(id: string, title: string, subtitle: string | undefined, workers: Worker[], showTemplateId: string | undefined, eventCallTime: Date, eventStartTime: Date, eventEndTime: Date) {
         this.id = id
         this.title = title
         this.subtitle = subtitle
         this.workers = workers
         this.showTemplateId = showTemplateId
+        this.eventCallTime = eventCallTime
         this.eventStartTime = eventStartTime
         this.eventEndTime = eventEndTime
     }
@@ -144,7 +146,7 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
                 } else return value
             })
 
-        events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, moreInfo.eventStartTime, moreInfo.eventEndTime))
+        events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, eventInfos[i].eventCallTime, moreInfo.eventStartTime, moreInfo.eventEndTime))
     }
 
     pageAndReleaser.release()
