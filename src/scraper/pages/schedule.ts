@@ -115,9 +115,10 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
             else return value
         })
 
-        // Spawn cool eventWindow
         await eventElement.click()
-        await page.waitForSelector("#eventWindow>#eventInfo")
+
+        // Wait for the new element to appear
+        await page.waitForFunction("document.querySelector(\".actions>.manager\")?.href.includes(" + parsedInfo.id + ")")
 
         const showTimes = await page.$eval("#eventWindow", (element, date) => {
             const callAndShowTime = (element.querySelectorAll(".subtitle").item(1) as HTMLElement).innerText

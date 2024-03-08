@@ -39,7 +39,7 @@ export async function createPage() {
 
         // Forward relevant console info from browser console to node console
         page.on("console", message => {
-            if (message.type() === "info") {
+            if (message.type() === "info" || message.type() === "dir") {
                 console.info("[Puppeteer INFO]" + message.text())
             }
         })

@@ -3,7 +3,6 @@ import assert from "assert";
 import dotenv from "dotenv";
 import {DateRange, getEventInfos} from "../dist/index.js";
 import {afterDays} from "../dist/common/date.js";
-import {inspect} from "node:util";
 
 // Pre test setup
 dotenv.config()
