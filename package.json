@@ -22,7 +22,7 @@
   "type": "module",
   "dependencies": {
     "@types/node": "20.11.25",
-    "libphonenumber-js": "1.10.57",
+    "libphonenumber-js": "1.10.58",
     "puppeteer": "22.4.0",
     "typescript": "5.4.2",
     "async-mutex": "0.4.1"
