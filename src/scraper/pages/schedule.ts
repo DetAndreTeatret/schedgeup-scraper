@@ -132,11 +132,10 @@ async function scrapeSchedule(page: Page, includeUnpostedEvents: boolean, dateRa
             const splitTime = [callTime, showTime].map(t => t.split(":")).flat().map(s => Number(s))
             const callTimeDate = new Date(date)
             const showStartDate = new Date(date)
-            // TODO: +1 is temp fix while we wait for SU to fix their timezone code...
-            callTimeDate.setHours(splitTime[0] + 1)
+            callTimeDate.setHours(splitTime[0])
             callTimeDate.setMinutes(splitTime[1])
 
-            showStartDate.setHours(splitTime[2] + 1)
+            showStartDate.setHours(splitTime[2])
             showStartDate.setMinutes(splitTime[3])
 
             return JSON.stringify({callTime: callTimeDate, showStart: showStartDate})
