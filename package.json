@@ -21,7 +21,7 @@
   ],
   "type": "module",
   "dependencies": {
-    "@types/node": "20.12.2",
+    "@types/node": "20.12.7",
     "libphonenumber-js": "1.10.59",
     "puppeteer": "22.6.5",
     "typescript": "5.4.3",
