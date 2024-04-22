@@ -75,7 +75,9 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
                         const who = whoListElement.querySelector(".bar_info") as HTMLElement
                         if (who != null) {
                             const name = who.firstChild?.textContent?.replaceAll("\n", "")
-                            workers.push(new Worker(id, role.innerText.split(" ")[0], name == null ? "MissingName" : name.trim()))
+                            // Regex is to remove the appended (0)/(1) etc.. (The required amount of users in SU)
+                            const roleTrimmed = role.innerText.replace(new RegExp("\\(\\d+\\)"), "").trim()
+                            workers.push(new Worker(id, roleTrimmed, name == null ? "MissingName" : name.trim()))
                         } else {
                             // Guests
                             const who = whoListElement.querySelector(".assignmentFields")
