@@ -1,7 +1,7 @@
 import {getSchedgeUpPage, navigateToUrl} from "../browser.js"
 import {ScheduleEventInfo} from "./schedule.js"
 
-const EVENT_ASSIGN_FORMAT = "https://www.schedgeup.com/assignments/%s/edit"
+const EVENT_ASSIGN_FORMAT = "https://www.schedgeup.com/events/%s/edit"
 
 export class Worker {
     id: string | null // null if Guest
@@ -114,39 +114,49 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
             }
         }
 
-        // Fetch the name of this show
-        const moreInfo: MoreEventInfo = JSON.parse(await page.$eval(".assign > #formHeader", (element, eventDate) => {
-            const nodes = element.querySelectorAll(".subtitle")
+        const moreInfo: MoreEventInfo = JSON.parse(await page.$eval(".form-container > .infoForm > .fields", (element, eventDate) => {
+            const fields = element.children
 
-            const title = element.firstChild?.textContent
-            const subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
-            const eventLengthText = nodes.item(1).textContent?.split(" • ")[1]
+            const title = fields.item(1)?.children.item(1)?.getAttribute("value")
 
-            if (title === null || title === undefined || eventLengthText === undefined) {
-                throw new Error("Error fetching title or eventLength from " + (title === null ? "some event" : title))
+            const subtitle = fields.item(2)?.children.item(1)?.getAttribute("value")
+
+            const showStartTime = fields.item(6)?.firstElementChild?.textContent?.split(new RegExp("[(|)]"))[1].split(":")
+
+            const showEndTime = fields.item(8)?.firstElementChild?.textContent?.replaceAll("\n", "")?.split(new RegExp("[(|)]"))[1].split(":")
+
+            if (!title || !showStartTime || !showEndTime) {
+                for (let j = 0; j < fields.length; j++) {
+                    console.info(fields[j].firstElementChild?.textContent)
+                }
+                console.info("" + title + subtitle + showStartTime + "|" + showEndTime)
+                throw new Error("Error fetching title or show times from " + (title === null ? "some event" : title))
             }
 
-            const eventLengthPieces = eventLengthText.split(new RegExp("[:|-]"))
-            const fromHours = Number(eventLengthPieces[0])
-            const fromMinutes = Number(eventLengthPieces[1])
-            const toHours = Number(eventLengthPieces[2])
-            const toMinutes = Number(eventLengthPieces[3])
+            const fromHours = Number(showStartTime[0])
+            const fromMinutes = Number(showStartTime[1])
+            const toHours = Number(showEndTime[0])
+            const toMinutes = Number(showEndTime[1])
+
+            // TODO WE ALSO HAVE CALL TIME HERE
+            // TODO Maybe drop the ajax magic then?
 
             const eventDateParsed = new Date(eventDate) // TODO look for date on page? So id is the only thing needed for fetch
             const eventStartTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), fromHours, fromMinutes)
             const eventEndTime = new Date(eventDateParsed.getFullYear(), eventDateParsed.getMonth(), eventDateParsed.getDate(), toHours, toMinutes)
 
             return JSON.stringify({
-                title: title.trim().replace("\n", ""),
+                title: title,
                 subtitle: subtitle,
                 eventStartTime: eventStartTime,
-                eventEndTime: eventEndTime
+                eventEndTime: eventEndTime,
             })
         }, eventInfos[i].eventStartTime), (key, value) => {
-                if (key === "eventStartTime" || key === "eventEndTime") {
-                    return new Date(value)
-                } else return value
-            })
+            if (key === "eventStartTime" || key === "eventEndTime") {
+                return new Date(value)
+            } else return value
+        })
+
 
         events.push(new Event(id, moreInfo.title, moreInfo.subtitle, workers, eventInfos[i].showtemplateId, eventInfos[i].eventCallTime, moreInfo.eventStartTime, moreInfo.eventEndTime))
     }
