@@ -118,7 +118,7 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
         const moreInfo: MoreEventInfo = JSON.parse(await page.$eval(".assign > .formHeader", (element, eventDate) => {
             const nodes = element.querySelectorAll(".subtitle")
 
-            const title = element.firstChild?.textContent
+            const title = element.firstElementChild?.firstElementChild?.textContent
             const subtitle: string | null | undefined = nodes.item(0).firstChild?.textContent
             const eventLengthText = nodes.item(1).textContent?.split(" • ")[1]
 
