@@ -28,7 +28,7 @@
     "async-mutex": "0.5.0"
   },
   "devDependencies": {
-    "eslint-config-dat": "1.1.5",
+    "eslint-config-dat": "1.1.6",
     "mocha": "10.7.3",
     "dotenv": "16.4.5"
   }
