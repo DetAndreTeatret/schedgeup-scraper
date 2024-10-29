@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "eslint-config-dat": "1.1.6",
-    "mocha": "10.7.3",
+    "mocha": "10.8.1",
     "dotenv": "16.4.5"
   }
 }
