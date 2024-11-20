@@ -13,7 +13,7 @@ export async function startBrowser() {
     browser = await puppeteer.launch({
         headless: true,
         args: ["--disable-setuid-sandbox"],
-        ignoreHTTPSErrors: true,
+        // ignoreHTTPSErrors: true, TODO what happened to this option??
     })
 
 }
