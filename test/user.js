@@ -1,12 +1,14 @@
-import {scrapeEvents, scrapeUsers, setupScraper} from "../dist/index.js";
-import assert from "assert";
-import dotenv from "dotenv";
-import {DateRange, getEventInfos} from "../dist/index.js";
-import {afterDays} from "../dist/common/date.js";
+import {scrapeEvents, scrapeUsers, setupScraper, DateRange, getEventInfos} from "../dist/index.js"
+import assert from "assert"
+import dotenv from "dotenv"
+import {afterDays} from "../dist/common/date.js"
 
 // Pre test setup
 dotenv.config()
 await setupScraper()
+
+// Disable undef rules since I won't bother looking up globals in Mocha context...
+/* eslint-disable no-undef */
 
 describe("#scrapeUsers", function () {
     it("Try to scrape users", async function () {

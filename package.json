@@ -3,8 +3,8 @@
   "version": "3.1.6",
   "description": "Web scraper for SchedgeUp",
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "lintFix": "eslint . --ext .ts --fix",
+    "lint": "eslint .",
+    "lintFix": "eslint . --fix",
     "transpile": "npm run lint && tsc",
     "release": "npm install && npm run lintFix && tsc && npm publish --access public",
     "test": "tsc && mocha --exit"
@@ -21,14 +21,16 @@
   ],
   "type": "module",
   "dependencies": {
+    "async-mutex": "0.5.0",
     "libphonenumber-js": "1.11.14",
     "puppeteer": "23.8.0",
-    "typescript": "5.6.3",
-    "async-mutex": "0.5.0"
+    "typescript": "5.6.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.15.0",
+    "dotenv": "16.4.5",
     "eslint-config-dat": "1.1.7",
-    "mocha": "10.8.2",
-    "dotenv": "16.4.5"
+    "mocha": "10.8.2"
   }
 }
