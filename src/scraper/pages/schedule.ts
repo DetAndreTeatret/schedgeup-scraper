@@ -32,11 +32,10 @@ export class ScheduleEventInfo {
  */
 export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents: boolean) {
     const pageAndReleaser = await getSchedgeUpPage()
-    const page = pageAndReleaser.page
     const dateStrings: string[] = []
     if (dateRange.isSingleMonth()) {
-        await navigateToSchedule(page)
-        const scheduleEventInfos = await scrapeSchedule(page, includeUnpostedEvents, dateRange)
+        await navigateToSchedule(pageAndReleaser.page())
+        const scheduleEventInfos = await scrapeSchedule(pageAndReleaser.page(), includeUnpostedEvents, dateRange)
         pageAndReleaser.release()
         return scheduleEventInfos
     } else {
@@ -55,8 +54,8 @@ export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents:
 
     const infos: ScheduleEventInfo[] = []
     for await (const date of dateStrings) {
-        await navigateToSchedule(page, date)
-        for await (const info of await scrapeSchedule(page, includeUnpostedEvents, dateRange)) {
+        await navigateToSchedule(pageAndReleaser.page(), date)
+        for await (const info of await scrapeSchedule(pageAndReleaser.page(), includeUnpostedEvents, dateRange)) {
             infos.push(info)
         }
     }

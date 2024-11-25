@@ -27,10 +27,9 @@ class SchedgeUpUser {
  */
 export async function scrapeUsers(users?: string[]): Promise<SchedgeUpUser[]> {
     const pageAndReleaser = await getSchedgeUpPage()
-    const page = pageAndReleaser.page
-    await navigateToUsers(page)
+    await navigateToUsers(pageAndReleaser.page())
 
-    const usersResult = JSON.parse(await page.$eval(".infoTable", (result, userIds) => {
+    const usersResult = JSON.parse(await pageAndReleaser.page().$eval(".infoTable", (result, userIds) => {
 
         const users: SchedgeUpUser[] = []
 

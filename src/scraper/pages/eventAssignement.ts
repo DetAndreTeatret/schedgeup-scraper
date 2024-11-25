@@ -39,16 +39,15 @@ export class Event {
 
 export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
     const pageAndReleaser = await getSchedgeUpPage()
-    const page = pageAndReleaser.page
     const events: Event[] = []
     for (let i = 0; i < eventInfos.length; i++) {
         const id = eventInfos[i].id
         const usersSelector = ".assignedUsers"
         console.log("Extracting users from " + id)
-        await navigateToUrl(page, EVENT_ASSIGN_FORMAT.replace("%s", id))
+        await navigateToUrl(pageAndReleaser.page(), EVENT_ASSIGN_FORMAT.replace("%s", id))
 
         // Fetch the workers currently assigned to this show
-        const workers = JSON.parse(await page.$$eval(usersSelector, (events) => {
+        const workers = JSON.parse(await pageAndReleaser.page().$$eval(usersSelector, (events) => {
 
             // Duplicate since browser can not see our class
             class Worker {
@@ -115,7 +114,7 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
         }
 
         // Fetch the name of this show
-        const moreInfo: MoreEventInfo = JSON.parse(await page.$eval(".assign > .formHeader", (element, eventDate) => {
+        const moreInfo: MoreEventInfo = JSON.parse(await pageAndReleaser.page().$eval(".assign > .formHeader", (element, eventDate) => {
             const nodes = element.querySelectorAll(".subtitle")
 
             const title = element.firstElementChild?.firstElementChild?.textContent
