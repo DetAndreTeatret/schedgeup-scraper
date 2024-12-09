@@ -126,10 +126,15 @@ export async function navigateToUrl(page: Page, url: string, tryCount: number = 
                 console.warn("Seems like this page does not work anymore, page is re-initialized!")
                 schedgeUpPage = undefined
                 mutex.release()
-                page = await createPage()
-                console.log("Retrying with a new page...")
-                await navigateToUrl(page, url, 4)
-                return
+                try {
+                    page = await createPage()
+                    console.log("Retrying with a new page...")
+                    await navigateToUrl(page, url, 4)
+                    return
+                } catch (e) {
+                    console.warn("Uuuuh, error creating page this time. Jump to next try")
+                    return
+                }
             }
             case 4: {
                 console.warn("Ok? Last effort, browser & page is re-initialized!")
