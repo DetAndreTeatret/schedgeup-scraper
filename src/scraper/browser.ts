@@ -133,6 +133,7 @@ export async function navigateToUrl(page: Page, url: string, tryCount: number = 
                     return
                 } catch (e) {
                     console.warn("Uuuuh, error creating page this time. Jump to next try\n" + e)
+                    await navigateToUrl(page, url, 4)
                     return
                 }
             }
