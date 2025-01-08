@@ -26,7 +26,7 @@ describe("#scrapeSchedule", function () {
     it("Try to scrape the next 7 days", async function () {
         this.timeout(60000)
 
-        const result = await getEventInfos(new DateRange(new Date(), afterDays(7)))
+        const result = await getEventInfos(new DateRange(new Date(), afterDays(7)), true)
         console.dir(result, {colors: true})
 
         const result2 = await scrapeEvents(result)

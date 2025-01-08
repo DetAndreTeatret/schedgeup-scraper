@@ -34,6 +34,7 @@ export async function getEventInfos(dateRange: DateRange, includeUnpostedEvents:
     const pageAndReleaser = await getSchedgeUpPage()
     const dateStrings: string[] = []
     if (dateRange.isSingleMonth()) {
+        console.log("Getting event ids for month " + dateRange.dateFrom.getMonth())
         await navigateToSchedule(pageAndReleaser.page())
         const scheduleEventInfos = await scrapeSchedule(pageAndReleaser.page(), includeUnpostedEvents, dateRange)
         pageAndReleaser.release()
