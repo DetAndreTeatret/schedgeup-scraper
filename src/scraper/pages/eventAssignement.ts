@@ -7,11 +7,13 @@ export class Worker {
     id: string | null // null if Guest
     role: string
     who: string
+    secondaryRole: string | null
 
-    constructor(id: string | null, role: string, who: string) {
+    constructor(id: string | null, role: string, who: string, secondaryRole: string | null) {
         this.id = id
         this.role = role
         this.who = who
+        this.secondaryRole = secondaryRole
     }
 }
 
@@ -54,11 +56,13 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
                 id: string | null // null if Guest
                 role: string
                 who: string
+                secondaryRole: string | null
 
-                constructor(id: string | null, role: string, who: string) {
+                constructor(id: string | null, role: string, who: string, secondaryRole: string | null) {
                     this.id = id
                     this.role = role
                     this.who = who
+                    this.secondaryRole = secondaryRole
                 }
             }
 
@@ -76,7 +80,11 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
                             const name = who.firstChild?.textContent?.replaceAll("\n", "")
                             // Regex is to remove the appended (0)/(1) etc.. (The required amount of users in SU)
                             const roleTrimmed = role.innerText.replace(new RegExp("\\(\\d+\\)"), "").trim()
-                            workers.push(new Worker(id, roleTrimmed, name == null ? "MissingName" : name.trim()))
+
+                            const secondaryRoleMaybe = who.nextElementSibling
+                            let secondaryRole: string | null = null
+                            if (secondaryRoleMaybe && secondaryRoleMaybe.nodeName === "SPAN") secondaryRole = secondaryRoleMaybe.textContent
+                            workers.push(new Worker(id, roleTrimmed, name == null ? "MissingName" : name.trim(), secondaryRole))
                         } else {
                             // Guests
                             const who = whoListElement.querySelector(".assignmentFields")
@@ -86,7 +94,7 @@ export async function scrapeEvents(eventInfos: ScheduleEventInfo[]) {
                             const whoText = whoTextElement.getAttribute("value")
                             if (whoText === null) throw new Error("Could not find text content in text element in Guest entry")
 
-                            workers.push(new Worker(id, role.innerText.split(" ")[0], whoText))
+                            workers.push(new Worker(id, role.innerText.split(" ")[0], whoText, null))
                         }
                     })
                 }
