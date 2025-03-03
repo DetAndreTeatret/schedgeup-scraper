@@ -10,7 +10,7 @@ let browser: Browser
  */
 export async function startBrowser() {
     console.log("Starting puppeteer browser...")
-    if (browser) browser.close()
+    if (browser) await browser.close()
     browser = await puppeteer.launch({
         headless: true,
         args: ["--disable-setuid-sandbox"],
@@ -116,7 +116,7 @@ export async function navigateToUrl(page: Page, url: string, tryCount: number = 
             case 2: {
                 await new Promise(resolve => {
                     setTimeout(async () => {
-                        await navigateToUrl(page, url, 2)
+                        await navigateToUrl(page, url, 3)
                         resolve(null)
                     }, 5000)
                 })
