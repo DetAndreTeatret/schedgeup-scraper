@@ -24,7 +24,7 @@
     "async-mutex": "0.5.0",
     "libphonenumber-js": "1.12.9",
     "puppeteer": "24.10.2",
-    "typescript": "5.7.3"
+    "typescript": "5.8.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
