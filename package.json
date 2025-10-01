@@ -30,7 +30,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.15.0",
     "dotenv": "17.2.0",
-    "mocha": "11.7.1",
+    "mocha": "11.7.3",
     "eslint-config-dat": "2.0.1"
   }
 }
