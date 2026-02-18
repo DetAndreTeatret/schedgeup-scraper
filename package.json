@@ -23,7 +23,7 @@
   "dependencies": {
     "async-mutex": "0.5.0",
     "libphonenumber-js": "1.12.33",
-    "puppeteer": "24.34.0",
+    "puppeteer": "24.37.4",
     "typescript": "5.8.3"
   },
   "devDependencies": {
