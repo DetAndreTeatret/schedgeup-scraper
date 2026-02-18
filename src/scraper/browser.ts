@@ -45,6 +45,14 @@ export async function createPage() {
         }
     })
 
+    page.on("error",() => {
+        mutex.release()
+    })
+
+    page.on("pageerror", () => {
+        mutex.release()
+    })
+
     // Minimize display size
     await page.setViewport({
         width: 640,
