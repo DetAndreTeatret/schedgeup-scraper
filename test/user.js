@@ -18,6 +18,7 @@ describe("#scrapeUsers", function () {
         users.forEach(user => {
             assert.doesNotReject(user.phoneNumber)
         })
+        console.log("Found " + users.length + " users in total")
         console.dir(users, {colors: true})
     })
 })
