@@ -1,3 +1,7 @@
+THIS PROJECT HAS BEEN MERGED INTO [forestilling-bot](https://github.com/DetAndreTeatret/forestilling-bot) AND IS THEREFORE ARCHIVED. 
+
+
+=== OLD README STARTS HERE ===
 A web scraper used to fetch information from [SchedgeUp](https://www.schedgeup.com)
 
 Expects the following env variables to be present in `process.env`(e.g by using [dotenv](https://www.npmjs.com/package/dotenv)):
